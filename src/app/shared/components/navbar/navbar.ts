@@ -22,6 +22,7 @@ export class Navbar {
     title: `${route.title ?? 'Maps en Angular 2026'}`
   })).filter(route => route.path !== '**');
 
+  // Crear una señal reactiva para el título de la página basado en la URL actual
   pageTitle = toSignal(this.router.events.pipe(
     filter(event => event instanceof NavigationEnd),
     // tap((event) => console.log(event)),
