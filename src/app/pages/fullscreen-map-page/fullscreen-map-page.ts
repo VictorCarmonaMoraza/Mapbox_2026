@@ -3,12 +3,12 @@ import { AfterViewInit, Component, effect, ElementRef, signal, viewChild } from 
 import mapboxgl from 'mapbox-gl';
 // Importamos el archivo de entorno para acceder a la clave de Mapbox
 import { environment } from '../../../environments/environment';
-import { DecimalPipe } from '@angular/common';
+import { DecimalPipe, JsonPipe } from '@angular/common';
 
 mapboxgl.accessToken = environment.mapboxkey;
 @Component({
   selector: 'app-fullscreen-map-page',
-  imports: [DecimalPipe],
+  imports: [DecimalPipe, JsonPipe],
   templateUrl: './fullscreen-map-page.html',
   styleUrl: './fullscreen-map-page.css',
 })
@@ -20,6 +20,10 @@ export class FullscreenMapPage implements AfterViewInit {
   map = signal<mapboxgl.Map | null>(null);
   // Señal para almacenar el nivel de zoom del mapa
   zoom = signal(14);
+  coordinates = signal({
+    lng: -74.5,
+    lat: 40
+  })
 
   zoomEffect = effect(() => {
     if (!this.map()) return;
@@ -37,12 +41,13 @@ export class FullscreenMapPage implements AfterViewInit {
 
     // Obtenemos la referencia real al elemento HTML <div #map>
     const element = this.divElement()!.nativeElement;
+    const { lng, lat } = this.coordinates();
 
     // Inicializamos el mapa de Mapbox dentro del elemento obtenido
     const map = new mapboxgl.Map({
       container: element,
       style: 'mapbox://styles/mapbox/streets-v12',
-      center: [-74.5, 40],
+      center: [lng, lat],
       zoom: this.zoom(),
     });
     // 🔹 En este punto, el mapa ya está visible e interactivo en pantalla
@@ -56,6 +61,12 @@ export class FullscreenMapPage implements AfterViewInit {
       const newZoom = event.target.getZoom();
       this.zoom.set(newZoom);
     })
+    //Evento para cuando el mapa deje de moverse actualizamos las coordenadas
+    map.on('moveend', () => {
+      const center = map.getCenter();
+      this.coordinates.set(center);
+    })
+
     this.map.set(map);
   }
 }
