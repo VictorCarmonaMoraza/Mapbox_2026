@@ -25,9 +25,12 @@ export class FullscreenMapPage implements AfterViewInit {
     lat: 40
   })
 
+  mapStyle = signal<string>('mapbox://styles/mapbox/streets-v12');
+
   zoomEffect = effect(() => {
     if (!this.map()) return;
     this.map()?.zoomTo(this.zoom());
+    this.map()?.setStyle(this.mapStyle());
   });
 
   // 🔹 Este método del ciclo de vida de Angular se ejecuta justo después
@@ -46,7 +49,7 @@ export class FullscreenMapPage implements AfterViewInit {
     // Inicializamos el mapa de Mapbox dentro del elemento obtenido
     const map = new mapboxgl.Map({
       container: element,
-      style: 'mapbox://styles/mapbox/streets-v12',
+      style: 'mapbox://styles/mapbox/satellite-streets-v12',
       center: [lng, lat],
       zoom: this.zoom(),
     });
@@ -67,6 +70,31 @@ export class FullscreenMapPage implements AfterViewInit {
       this.coordinates.set(center);
     })
 
+    //Controles de mapbox
+
+    //Agregar controles de navegación al mapa (zoom in, zoom out, rotación)
+    map.addControl(new mapboxgl.NavigationControl());
+
+    // Agregar controles de pantalla completa al mapa
+    map.addControl(new mapboxgl.FullscreenControl());
+
+    // Guardamos la instancia del mapa en la señal
     this.map.set(map);
+  }
+
+  onMapStyleChange(event: Event) {
+    //Obtener el valor seleccionado del select
+    const value = (event.target as HTMLSelectElement).value;
+
+    //Definir los estilos disponibles
+    const styles: Record<string, string> = {
+      streets: 'mapbox://styles/mapbox/streets-v12',
+      outdoors: 'mapbox://styles/mapbox/outdoors-v12',
+      satellite_streets: 'mapbox://styles/mapbox/satellite-streets-v12',
+      satellite: 'mapbox://styles/mapbox/satellite-streets-v12',
+      night: 'mapbox://styles/mapbox/navigation-night-v1'
+    };
+
+    this.mapStyle.set(styles[value]);
   }
 }

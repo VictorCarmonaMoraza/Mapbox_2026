@@ -20,5 +20,12 @@
 
     }}
     </pre>
-
+  <select class="select" (change)="onMapStyleChange($event)">
+    <option disabled selected>Tipo de mapa</option>
+    <option value="streets">Streets</option>
+    <option value="outdoors">Outdoors</option>
+    <option value="satellite_streets">Satellite Streets</option>
+    <option value="satellite">Satellite</option>
+    <option value="night">Night</option>
+  </select>
 </section>
