@@ -1,8 +1,9 @@
 import { Component, ElementRef, viewChild, signal, AfterViewInit } from '@angular/core';
-import mapboxgl, { MapMouseEvent } from 'mapbox-gl';
+import mapboxgl, { LngLatLike, MapMouseEvent } from 'mapbox-gl';
 import { environment } from '../../../environments/environment';
 import { LOCATIONS } from '../../../../locations.config';
 import { v4 as Uuidv4 } from 'uuid';
+import { JsonPipe } from '@angular/common';
 
 
 mapboxgl.accessToken = environment.mapboxkey;
@@ -14,7 +15,7 @@ interface Markers {
 
 @Component({
   selector: 'app-markers-page',
-  imports: [],
+  imports: [JsonPipe],
   templateUrl: './markers-page.html',
   styleUrl: './markers-page.css',
 })
@@ -62,19 +63,14 @@ export class MarkersPage implements AfterViewInit {
   mapClick(event: MapMouseEvent) {
     //Si el mapa no existe, salimos
     if (!this.map()) return;
-
     //Obtenemos la instancia del mapa
     const map = this.map()!;
     //Obtenemos coordenadas donde se hizo click
     const coordenadas = event.lngLat;
-    console.log({ coordenadas });
-
-    console.log('mapClick', event.lngLat);
     //Generar color aleatorio
     const color = '#xxxxxx'.replace(/x/g, (y) =>
       ((Math.random() * 16) | 0).toString(16)
     );
-
     //Añadir marcador al mapa
     const mapboxMarker = new mapboxgl.Marker({
       color: color,
@@ -93,7 +89,19 @@ export class MarkersPage implements AfterViewInit {
     this.markers.set([newMarker, ...this.markers()]);
     //Opcion 2: Usar el método update de la señal
     //this.markers.update((markers) => [newMarker, ...markers]);
-
     console.log(this.markers());
+  }
+
+  //Ir al marcador seleccionado
+  gotoMarkerSelected(lngLat: LngLatLike) {
+    //Si no existe el mapa o no hay marcadores, salimos
+    if (!this.map() || this.markers().length === 0) return;
+
+    //Usamos el método flyTo para mover la cámara del mapa
+    //  a las coordenadas del marcador seleccionado
+    this.map()?.flyTo({
+      center: lngLat,
+      zoom: 14
+    });
   }
 }
