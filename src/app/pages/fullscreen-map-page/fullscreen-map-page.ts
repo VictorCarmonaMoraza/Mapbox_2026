@@ -49,7 +49,7 @@ export class FullscreenMapPage implements AfterViewInit {
     // Inicializamos el mapa de Mapbox dentro del elemento obtenido
     const map = new mapboxgl.Map({
       container: element,
-      style: 'mapbox://styles/mapbox/satellite-streets-v12',
+      style: this.mapStyle(),
       center: [lng, lat],
       zoom: this.zoom(),
     });
