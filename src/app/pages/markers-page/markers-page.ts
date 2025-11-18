@@ -8,7 +8,7 @@ import { JsonPipe } from '@angular/common';
 
 mapboxgl.accessToken = environment.mapboxkey;
 
-interface Markers {
+interface Marker {
   id: string;
   marker?: mapboxgl.Marker;
 }
@@ -27,7 +27,7 @@ export class MarkersPage implements AfterViewInit {
   map = signal<mapboxgl.Map | null>(null);
   locationDefault = LOCATIONS['sevilla'];
   //Marcadores
-  markers = signal<Markers[]>([]);
+  markers = signal<Marker[]>([]);
 
   async ngAfterViewInit() {
     // TODO: Implementar la inicialización del mapa aquí
@@ -79,7 +79,7 @@ export class MarkersPage implements AfterViewInit {
       .setLngLat(coordenadas)
       .addTo(map);
 
-    const newMarker: Markers = {
+    const newMarker: Marker = {
       id: Uuidv4(),
       marker: mapboxMarker
     }
@@ -103,5 +103,16 @@ export class MarkersPage implements AfterViewInit {
       center: lngLat,
       zoom: 14
     });
+  }
+
+  removeMarker(marker: Marker) {
+    //Si no existe el mapa, salimos
+    if (!this.map()) return;
+    //Obtenemos la instancia del mapa
+    const map = this.map()!;
+    //Eliminamos el marcador del mapa
+    marker.marker?.remove();
+    //Eliminamos el marcador de la señal
+    this.markers.set(this.markers().filter(m => m.id !== marker.id));
   }
 }

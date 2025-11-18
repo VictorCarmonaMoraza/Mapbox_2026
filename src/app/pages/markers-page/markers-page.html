@@ -9,7 +9,7 @@
 
     <label class="flex items-center gap-2 cursor-pointer text-black">
       <input type="radio" class="radio" [style]=" {backgroundColor: marker.marker?._color}" checked="checked"
-        name="radio-10" (click)="gotoMarkerSelected(marker.marker!.getLngLat())" />
+        name="radio-10" (click)="gotoMarkerSelected(marker.marker!.getLngLat())" (dblclick)="removeMarker(marker)" />
       <span class="font-bold text-xs">{{marker.marker?.getLngLat() | json}}</span>
     </label>
 
