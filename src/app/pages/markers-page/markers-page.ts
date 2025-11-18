@@ -1,10 +1,16 @@
 import { Component, ElementRef, viewChild, signal, AfterViewInit } from '@angular/core';
-import mapboxgl from 'mapbox-gl';
+import mapboxgl, { MapMouseEvent } from 'mapbox-gl';
 import { environment } from '../../../environments/environment';
 import { LOCATIONS } from '../../../../locations.config';
+import { v4 as Uuidv4 } from 'uuid';
 
 
 mapboxgl.accessToken = environment.mapboxkey;
+
+interface Markers {
+  id: string;
+  marker?: mapboxgl.Marker;
+}
 
 @Component({
   selector: 'app-markers-page',
@@ -19,6 +25,8 @@ export class MarkersPage implements AfterViewInit {
   // Señal para almacenar la instancia del mapa de Mapbox
   map = signal<mapboxgl.Map | null>(null);
   locationDefault = LOCATIONS['sevilla'];
+  //Marcadores
+  markers = signal<Markers[]>([]);
 
   async ngAfterViewInit() {
     // TODO: Implementar la inicialización del mapa aquí
@@ -39,26 +47,53 @@ export class MarkersPage implements AfterViewInit {
       zoom: 14
     });
 
-    // Crear popup
-    const popup = new mapboxgl.Popup({ offset: 25 })
-      .setHTML(`<h3 class="font-bold text-black">Mi ubicación</h3><p class="font-bold text-black">Este es el punto por defecto.</p>`);
-
-    //Añadir marcador al mapa
-    const marker = new mapboxgl.Marker({
-      color: 'red',
-      draggable: false,
-
-    })
-      .setLngLat([this.locationDefault.lng, this.locationDefault.lat])
-      .setPopup(popup) // Asignar el popup al marcador
-      .addTo(map);
-
-    // 🔹 En este punto, el mapa ya está visible e interactivo en pantalla
     this.mapListeners(map);
   }
 
   private mapListeners(map: mapboxgl.Map) {
-    // TODO: Implementar listeners del mapa aquí
-    // Ejemplo: map.on('click', (e) => { console.log(e.lngLat); });
+    //necesito obtener las coordenados cuando hago click en el mapa
+    map.on('click', (event) => this.mapClick(event)
+    );
+    // Guardar la instancia del mapa en la señal
+    this.map.set(map);
+  }
+
+  //Manejador del evento click del mapa
+  mapClick(event: MapMouseEvent) {
+    //Si el mapa no existe, salimos
+    if (!this.map()) return;
+
+    //Obtenemos la instancia del mapa
+    const map = this.map()!;
+    //Obtenemos coordenadas donde se hizo click
+    const coordenadas = event.lngLat;
+    console.log({ coordenadas });
+
+    console.log('mapClick', event.lngLat);
+    //Generar color aleatorio
+    const color = '#xxxxxx'.replace(/x/g, (y) =>
+      ((Math.random() * 16) | 0).toString(16)
+    );
+
+    //Añadir marcador al mapa
+    const mapboxMarker = new mapboxgl.Marker({
+      color: color,
+      draggable: false,
+    })
+      .setLngLat(coordenadas)
+      .addTo(map);
+
+    const newMarker: Markers = {
+      id: Uuidv4(),
+      marker: mapboxMarker
+    }
+
+    //Las dos opciones son válidas:
+    //Opcion 1: actualizar la señal con el nuevo marcador
+    this.markers.set([newMarker, ...this.markers()]);
+    //Opcion 2: Usar el método update de la señal
+    //this.markers.update((markers) => [newMarker, ...markers]);
+
+    console.log(this.markers());
   }
 }
