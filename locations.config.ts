@@ -27,3 +27,10 @@ export const LOCATIONS: Record<string, LocationConfig> = {
     zoom: 13
   }
 };
+
+export const Map_Style_streets = 'mapbox://styles/mapbox/streets-v12'
+export const Map_Style_outdoors = 'mapbox://styles/mapbox/outdoors-v12'
+export const Map_Style_satellite_streets = 'mapbox://styles/mapbox/satellite-streets-v12'
+export const Map_Style_satellite = 'mapbox://styles/mapbox/satellite-streets-v12'
+export const Map_Style_night = 'mapbox://styles/mapbox/navigation-night-v1'
+
